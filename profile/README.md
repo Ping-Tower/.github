@@ -6,8 +6,8 @@
 
 ### Real-time server availability monitoring
 
-PingTower probes your servers on a schedule over HTTP/HTTPS, TCP and ICMP, keeps the latency history
-and alerts you the moment a server goes down or recovers — in the browser, by email and in Telegram.
+PingTower checks your servers over HTTP/HTTPS, TCP, and ICMP, keeps latency history,
+and tells you the moment one goes down or comes back — in the browser, by email, or in Telegram.
 
 ![C#](https://img.shields.io/badge/C%23_·_.NET_10-512BD4?logo=dotnet&logoColor=white)
 ![Go](https://img.shields.io/badge/Go-00ADD8?logo=go&logoColor=white)
@@ -28,53 +28,45 @@ and alerts you the moment a server goes down or recovers — in the browser, by 
 
 ## How it works
 
-| 📡 Probes | ⚖️ Evaluates | 💾 Stores | 🔔 Alerts |
+| Probe | Evaluate | Store | Alert |
 | :---: | :---: | :---: | :---: |
-| A dedicated goroutine per target checks it over HTTP/HTTPS, TCP or ICMP at the configured interval | Consecutive-failure and latency thresholds move the server to `UP` / `DOWN` | Every ping — latency, RTT, packet loss, TLS, DNS — is batched into ClickHouse | Status changes reach the browser via SignalR, email and Telegram, with a cooldown |
+| Each server gets its own goroutine that checks it over HTTP/HTTPS, TCP, or ICMP on schedule | Failures in a row and slow responses flip a server to `DOWN`; a success brings it back `UP` | Every ping — latency, RTT, packet loss, TLS, DNS — goes to ClickHouse in batches | Status changes reach the browser, email, and Telegram, with a cooldown against spam |
 
 <div align="center">
 <a href="../assets/architecture.png"><img src="../assets/architecture.png" width="680" alt="PingTower architecture"></a><br>
-<sub>Independent services talk over RabbitMQ (topic exchanges and work queues)</sub>
+<sub>Services talk to each other only through RabbitMQ</sub>
 </div>
 
 ## Repositories
 
 <table>
-<tr><th colspan="2">🖥 Product</th></tr>
+<tr><th>Product</th></tr>
 <tr>
-<td width="48" align="center">⚙️</td>
 <td><a href="https://github.com/Ping-Tower/api"><b>api</b></a> — REST API, live status SignalR hub, authentication, notification routing<br><sub>C# · ASP.NET Core 10 · MediatR · SignalR · EF Core · PostgreSQL</sub></td>
 </tr>
 <tr>
-<td align="center">🖥️</td>
 <td><a href="https://github.com/Ping-Tower/frontend"><b>frontend</b></a> — dashboard: servers, real-time statuses, latency charts, notification settings<br><sub>React 19 · TypeScript · Vite · TanStack Query · Zustand · Radix UI · Recharts</sub></td>
 </tr>
-<tr><th colspan="2">📡 Monitoring</th></tr>
+<tr><th>Monitoring</th></tr>
 <tr>
-<td align="center">📡</td>
 <td><a href="https://github.com/Ping-Tower/ping-service"><b>ping-service</b></a> — HTTP/HTTPS, TCP and ICMP probes, one goroutine per target<br><sub>Go · pro-bing · RabbitMQ · Redis</sub></td>
 </tr>
 <tr>
-<td align="center">⚖️</td>
 <td><a href="https://github.com/Ping-Tower/state-elevator"><b>state-elevator</b></a> — status lifecycle: failure and latency thresholds → <code>UP</code> / <code>DOWN</code><br><sub>C# · .NET Worker Service · RabbitMQ · Redis</sub></td>
 </tr>
 <tr>
-<td align="center">💾</td>
 <td><a href="https://github.com/Ping-Tower/metrics-writer"><b>metrics-writer</b></a> — batched ping history writes to ClickHouse<br><sub>C# · .NET Worker Service · ClickHouse</sub></td>
 </tr>
-<tr><th colspan="2">🔔 Notifications</th></tr>
+<tr><th>Notifications</th></tr>
 <tr>
-<td align="center">📨</td>
 <td><a href="https://github.com/Ping-Tower/email-service"><b>email-service</b></a> — SMTP email with retries and a circuit breaker<br><sub>C# · .NET Worker Service · MailKit · Polly</sub></td>
 </tr>
 <tr>
-<td align="center">💬</td>
 <td><a href="https://github.com/Ping-Tower/tg-bot"><b>tg-bot</b></a> — Telegram bot: account linking and alert delivery<br><sub>Python · FastAPI · aiogram · FastStream</sub></td>
 </tr>
-<tr><th colspan="2">🏗️ Platform</th></tr>
+<tr><th>Platform</th></tr>
 <tr>
-<td align="center">🏗️</td>
-<td><a href="https://github.com/Ping-Tower/infra"><b>infra</b></a> — Traefik, PostgreSQL, Redis, ClickHouse, RabbitMQ, logging; one Makefile for the whole stack<br><sub>Docker Compose · Traefik · Loki / Promtail / Grafana · GitLab CI</sub></td>
+<td><a href="https://github.com/Ping-Tower/infra"><b>infra</b></a> — Traefik, PostgreSQL, Redis, ClickHouse, RabbitMQ, logging; one Makefile for the whole stack<br><sub>Docker Compose · Traefik · Loki / Promtail / Grafana</sub></td>
 </tr>
 </table>
 
